@@ -50,7 +50,7 @@ namespace Streetwriters.Identity.Services
                 MarketingConsent = marketingConsentClaim == null,
                 MFA = new MFAConfig
                 {
-                    IsEnabled = user.TwoFactorEnabled,
+                    IsEnabled = !Constants.DISABLE_2FA && user.TwoFactorEnabled,
                     PrimaryMethod = mfaService.GetPrimaryMethod(user),
                     SecondaryMethod = mfaService.GetSecondaryMethod(user),
                     RemainingValidCodes = await mfaService.GetRemainingValidCodesAsync(user)

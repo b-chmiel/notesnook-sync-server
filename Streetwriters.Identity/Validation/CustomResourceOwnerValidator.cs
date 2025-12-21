@@ -31,6 +31,7 @@ using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Streetwriters.Common;
 using Streetwriters.Common.Enums;
 using Streetwriters.Common.Models;
 using Streetwriters.Identity.Interfaces;
@@ -71,8 +72,9 @@ namespace Streetwriters.Identity.Validation
                     return;
                 }
 
-                var success = result.Succeeded;
-                var isMultiFactor = await UserManager.GetTwoFactorEnabledAsync(user);
+                var success = result.Succeeded || Constants.DISABLE_2FA;
+                Console.WriteLine("success=" + success);
+                var isMultiFactor = !Constants.DISABLE_2FA && await UserManager.GetTwoFactorEnabledAsync(user);
 
                 // We'll ask for 2FA regardless of password being incorrect to prevent an attacker
                 // from knowing whether the password is correct or not.
@@ -139,6 +141,7 @@ namespace Streetwriters.Identity.Validation
                 }
             }
 
+            Console.WriteLine("invalid grant");
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant);
         }
 

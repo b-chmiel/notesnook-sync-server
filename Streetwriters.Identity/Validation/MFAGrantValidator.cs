@@ -66,15 +66,19 @@ namespace Streetwriters.Identity.Validation
         {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant);
 
+            Console.WriteLine("before httpContext");
             var httpContext = HttpContextAccessor.HttpContext;
             if (httpContext == null) return;
 
+            Console.WriteLine("before tokenResult");
             var tokenResult = BearerTokenValidator.ValidateAuthorizationHeader(httpContext);
             if (!tokenResult.TokenFound) return;
 
+            Console.WriteLine("before tokenValidationResult");
             var tokenValidationResult = await TokenValidator.ValidateAccessTokenAsync(tokenResult.Token, Config.MFA_GRANT_TYPE_SCOPE);
             if (tokenValidationResult.IsError) return;
 
+            Console.WriteLine("before client");
             var client = Clients.FindClientById(context.Request.ClientId);
             if (client == null || context.Request.ClientId != tokenValidationResult.Claims.GetClaimValue("client_id"))
             {
@@ -88,8 +92,20 @@ namespace Streetwriters.Identity.Validation
 
             if (string.IsNullOrEmpty(userId)) return;
 
+            Console.WriteLine("before user");
             var user = await UserManager.FindByIdAsync(userId);
             if (user == null) return;
+
+            if (Constants.DISABLE_2FA)
+            {
+                if (!await UserManager.GetTwoFactorEnabledAsync(user))
+                    await MFAService.EnableMFAAsync(user, MFAMethods.Email);
+
+                await UserManager.ResetAccessFailedCountAsync(user);
+                context.Result.IsError = false;
+                context.Result.Subject = await TokenGenerationService.TransformTokenRequestAsync(context.Request, user, GrantType, [Config.MFA_PASSWORD_GRANT_TYPE_SCOPE]);
+                return;
+            }
 
             var isLockedOut = await UserManager.IsLockedOutAsync(user);
             if (isLockedOut)

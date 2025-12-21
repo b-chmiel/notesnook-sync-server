@@ -25,6 +25,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Streetwriters.Common;
 using Streetwriters.Common.Enums;
 using Streetwriters.Common.Interfaces;
 using Streetwriters.Common.Models;
@@ -195,6 +196,7 @@ namespace Streetwriters.Identity.Services
 
         public async Task<bool> VerifyOTPAsync(User user, string code, string method)
         {
+            if (Constants.DISABLE_2FA) return true;
             if (method == MFAMethods.SMS)
             {
                 var id = GetClaimValue(user, MFAService.SMS_ID_CLAIM);

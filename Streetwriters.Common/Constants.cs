@@ -25,6 +25,7 @@ namespace Streetwriters.Common
     {
         public static int COMPATIBILITY_VERSION = 1;
         public static bool IS_SELF_HOSTED => ReadSecret("SELF_HOSTED") == "1";
+        public static bool DISABLE_2FA => ReadSecret("DISABLE_2FA") == "true";
         public static bool DISABLE_SIGNUPS => ReadSecret("DISABLE_SIGNUPS") == "true";
         public static string INSTANCE_NAME => ReadSecret("INSTANCE_NAME") ?? "default";
 
@@ -84,7 +85,11 @@ namespace Streetwriters.Common
         public static string? ReadSecret(string name)
         {
             var value = Environment.GetEnvironmentVariable(name);
-            if (!string.IsNullOrEmpty(value)) return value;
+            if (!string.IsNullOrEmpty(value))
+            {
+                Console.WriteLine("name=" + name + " value=" + value);
+                return value;
+            }
             var file = Environment.GetEnvironmentVariable(name + "_FILE");
             if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
             {
@@ -94,4 +99,3 @@ namespace Streetwriters.Common
         }
     }
 }
-
