@@ -40,6 +40,7 @@ namespace Notesnook.API.Controllers
     [ApiController]
     [Authorize]
     [Route("users")]
+    [Route("signup")]
     public class UsersController(IUserService UserService, WampServiceAccessor serviceAccessor, ILogger<UsersController> logger) : ControllerBase
     {
         [HttpPost]
