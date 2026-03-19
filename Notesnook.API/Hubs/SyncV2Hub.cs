@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Notesnook.API.Authorization;
 using Notesnook.API.Interfaces;
@@ -73,6 +74,7 @@ namespace Notesnook.API.Hubs
 
         public SyncV2Hub(ISyncItemsRepositoryAccessor syncItemsRepositoryAccessor, IUnitOfWork unitOfWork, SyncDeviceService syncDeviceService, ILogger<SyncV2Hub> logger)
         {
+            Logger = logger;
             Repositories = syncItemsRepositoryAccessor;
             unit = unitOfWork;
             SyncDeviceService = syncDeviceService;
